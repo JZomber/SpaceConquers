@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-//----------------------------------
+//--------------------------------
 // RAMA MAIN DEL RESPOSITORIO
-//----------------------------------
+//--------------------------------
 
 namespace Game
 {
