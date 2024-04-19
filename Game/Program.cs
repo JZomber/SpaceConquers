@@ -3,6 +3,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+//============================
+// RAMA MAIN
+//============================
+
 namespace Game
 {
    
@@ -253,4 +257,12 @@ namespace Game
 
        
     }
+
+/*
+   Para agregar imágenes.
+
+   En el explorador de soluciones, click-izq > agregar > Elemento existente > Imagen (PNG) descargada
+
+   Luego en propiedades (la llave), "Copiar en el directorio de salida" > "Copiar Siempre" || (Así al momento de Debuggear, están todos los elementos)
+*/
 }
