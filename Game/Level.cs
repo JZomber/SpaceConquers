@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Compatibility.VB6;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,8 @@ namespace Game
     public class Gameplay : Level
     {
         private Character character;
+        private Character enemy;
+
         public Gameplay() 
         {
            Initialize();
@@ -26,6 +29,7 @@ namespace Game
         public override void Draw()
         {
           character.Draw();
+          enemy.Draw();
         }
 
         public override void Input()
@@ -41,12 +45,18 @@ namespace Game
         public override void Update()
         {
             character.Update();
+            enemy.Update();
         }
 
         private void Initialize()
         {
-            character = new Character(1, 1, 1, .45f, .45f, "ship.png", 400, 30);
-            character.speed = 0;
+            character = new Character(1, 5, 1, .45f, .45f, "ship.png", 400, 530, false);
+
+            for (int i = 0; i < 5; i++)
+            {
+                enemy = new Character(1, 0, 1, .75f, .75f, "ship.png", 10 * i, 10 * i, true);
+                enemy.speed = 2;
+            }
         }
     }
 

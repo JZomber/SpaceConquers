@@ -4,10 +4,6 @@ using System.Collections;
 using System.Security.Policy;
 using static System.Net.Mime.MediaTypeNames;
 
-//======================
-// RAMA DEVELOP
-//======================
-
 namespace Game
 {
     public delegate void LifeChanged(int p_newLife);
@@ -33,7 +29,7 @@ namespace Game
 
         static void Main(string[] args)
         {
-            Engine.Initialize("pepito screen" , WIDTH, HEIGHT);
+            Engine.Initialize("Space Conquers" , WIDTH, HEIGHT);
 
             while (true)
             {
@@ -78,12 +74,4 @@ namespace Game
 
        
     }
-
-/*
-   Para agregar imágenes.
-
-   En el explorador de soluciones, click-izq > agregar > Elemento existente > Imagen (PNG) descargada
-
-   Luego en propiedades (la llave), "Copiar en el directorio de salida" > "Copiar Siempre" || (Así al momento de Debuggear, están todos los elementos)
-*/
 }
