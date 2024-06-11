@@ -77,6 +77,8 @@ namespace Game
         public LifeChanged onLifeLoose;
         public LifeChanged onLifeGained;
 
+        public event Action onEnemyDeath;
+
         private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(BulletFactory.CreateBullet);
 
         public Gameplay gameplayLevel;
@@ -146,7 +148,7 @@ namespace Game
             {
                 var bullet = bulletsPool.GetElement(transform.position);
                 bullet.Reset(transform.position);
-                bullet.onBulletDied += ReleaseBullet;
+                bullet.onBulletDied += ReleaseBulletHandler;
 
                 gameplayLevel.gameObjects.Add(bullet);
                 currentShootCD = 0;
@@ -162,16 +164,9 @@ namespace Game
                 IncrementPosX(velocidad);
             }
 
-            if (Engine.GetKey(Keys.P))
+            if (Engine.GetKey(Keys.K)) //Debug purpose
             {
-                Console.WriteLine("LLAMANDO PANTALLA DERROTA");
-                LevelManager.Instance.SetLevel("Defeat");
-            }
-
-            if (Engine.GetKey(Keys.O))
-            {
-                Console.WriteLine("LLAMANDO PANTALLA VICTORIA");
-                LevelManager.Instance.SetLevel("Victory");
+                onEnemyDeath?.Invoke();
             }
         }
 
@@ -196,10 +191,15 @@ namespace Game
             base.Update();
         }
 
-        private void ReleaseBullet(Bullet bulletToRelease)
+        private void ReleaseBulletHandler(Bullet bulletToRelease)
         {
             bulletsPool.ReleaseObject(bulletToRelease);
             gameplayLevel.gameObjects.Remove(bulletToRelease);
+        }
+
+        private void OnEnemyKilledHandler()
+        {
+            Console.WriteLine("ENEMY ELIMINADO");
         }
 
         private void LifeGained()
