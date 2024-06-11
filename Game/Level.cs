@@ -20,6 +20,7 @@ namespace Game
     {
         private Character character;
         private Character enemy;
+        public List<GameObject> gameObjects = new List<GameObject>();
 
         public Gameplay() 
         {
@@ -28,8 +29,13 @@ namespace Game
 
         public override void Draw()
         {
-          character.Draw();
-          enemy.Draw();
+            foreach (var gameObject in new List<GameObject>(gameObjects)) 
+            {
+                gameObject.Draw();
+            }
+
+          //character.Draw();
+          //enemy.Draw();
         }
 
         public override void Input()
@@ -44,8 +50,13 @@ namespace Game
 
         public override void Update()
         {
-            character.Update();
-            enemy.Update();
+            foreach (var gameObject in new List<GameObject>(gameObjects))
+            {
+                gameObject.Update();
+            }
+
+            //character.Update();
+            //enemy.Update();
         }
 
         private void Initialize()
@@ -57,6 +68,12 @@ namespace Game
                 enemy = new Character(1, 0, 1, .75f, .75f, "ship.png", 10 * i, 10 * i, true);
                 enemy.speed = 2;
             }
+
+            character.gameplayLevel = this;
+
+            gameObjects.Clear();
+            gameObjects.Add(character);
+            gameObjects.Add(enemy);
         }
     }
 

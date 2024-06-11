@@ -47,18 +47,19 @@ namespace Game
         {
             for (int i = 0; i < gameobjectList.Count; i++)
             {
-                var l_naveUno = gameobjectList[i];
+                var objOne = gameobjectList[i];
                 for (int j = 0; j < gameobjectList.Count; j++)
                 {
                     if (j == i)
                         continue;
 
 
-                    var l_naveDos = gameobjectList[j];
-                    if (IsBoxColliding(l_naveUno.Transform.position, l_naveUno.RealSize,
-                        l_naveDos.Transform.position, l_naveDos.RealSize))
+                    var objTwo = gameobjectList[j];
+                    if (IsBoxColliding(objOne.Transform.position, objOne.RealSize, objTwo.Transform.position, objTwo.RealSize))
                     {
                         Console.WriteLine("Alguien esta chocando");
+                        objOne.OnCollision(objTwo);
+                        objTwo.OnCollision(objOne);
                     }
                 }
             }

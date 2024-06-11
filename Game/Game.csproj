@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Animation.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="ElementPool.cs" />
     <Compile Include="Game.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>

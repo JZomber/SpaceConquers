@@ -1,4 +1,6 @@
-﻿namespace Game
+﻿using System;
+
+namespace Game
 {
     public class GameObject
     {
@@ -20,8 +22,7 @@
         public Vector2 RealSize => new Vector2(RealWidth, RealHeight);
 
 
-        public GameObject(float p_sizeX, float p_sizeY, string p_textura,
-            int p_posicionX, int p_posicionY)
+        public GameObject(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY)
         {
             transform = new Transform(p_posicionX, p_posicionY, p_sizeX, p_sizeY);
             textura = p_textura;
@@ -42,6 +43,11 @@
         public virtual void Draw()
         {
             Engine.Draw(currentAnimation.CurrentFrame, transform.position.x, transform.position.y, transform.scale.x, transform.scale.y, 0);
+        }
+
+        public virtual void OnCollision(GameObject other)
+        {
+            Console.WriteLine($"{this} HA COLISIONADO CON {other}");
         }
     }
 }
