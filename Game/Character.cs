@@ -161,6 +161,18 @@ namespace Game
             {
                 IncrementPosX(velocidad);
             }
+
+            if (Engine.GetKey(Keys.P))
+            {
+                Console.WriteLine("LLAMANDO PANTALLA DERROTA");
+                LevelManager.Instance.SetLevel("Defeat");
+            }
+
+            if (Engine.GetKey(Keys.O))
+            {
+                Console.WriteLine("LLAMANDO PANTALLA VICTORIA");
+                LevelManager.Instance.SetLevel("Victory");
+            }
         }
 
         public override void Update()
@@ -169,7 +181,7 @@ namespace Game
 
             if (isEnemy)
             {
-                //IncrementPosX(speed);
+                IncrementPosX(speed);
             }
 
             if (PosX > Program.WIDTH + currentAnimation.CurrentFrame.Width)

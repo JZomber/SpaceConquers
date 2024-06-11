@@ -58,8 +58,6 @@ namespace Game
                     if (IsBoxColliding(objOne.Transform.position, objOne.RealSize, objTwo.Transform.position, objTwo.RealSize))
                     {
                         Console.WriteLine("Alguien esta chocando");
-                        objOne.OnCollision(objTwo);
-                        objTwo.OnCollision(objOne);
                     }
                 }
             }

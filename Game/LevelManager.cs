@@ -30,6 +30,8 @@ namespace Game
             levels.Clear();
             AddNewLevel("Menu", new Menu());
             AddNewLevel("Jugar", new Gameplay());
+            AddNewLevel("Victory", new Victory());
+            AddNewLevel("Defeat", new Defeat());
 
 
 
@@ -60,6 +62,12 @@ namespace Game
                     break;
                 case LevelType.Game:
                     currentLevel = new Gameplay();
+                    break;
+                case LevelType.Win:
+                    currentLevel = new Victory();
+                    break;
+                case LevelType.Loose:
+                    currentLevel = new Defeat();
                     break;
             }
         }

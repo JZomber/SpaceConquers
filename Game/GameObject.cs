@@ -44,10 +44,5 @@ namespace Game
         {
             Engine.Draw(currentAnimation.CurrentFrame, transform.position.x, transform.position.y, transform.scale.x, transform.scale.y, 0);
         }
-
-        public virtual void OnCollision(GameObject other)
-        {
-            Console.WriteLine($"{this} HA COLISIONADO CON {other}");
-        }
     }
 }
