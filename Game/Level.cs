@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 
 namespace Game
 {
@@ -18,14 +19,14 @@ namespace Game
 
     public class Gameplay : Level
     {
-        private int enemyCount = 5;
+        private int enemyCount = 8;
         private int currentEnemyCount;
 
         private float gameplayLimitTime = 30;
         private float currentGameplayTime = 0;
 
-        private Character character;
-        private Character enemy;
+        private Player player;
+        private Enemy enemy;
         public List<GameObject> gameObjects = new List<GameObject>();
 
         public Gameplay() 
@@ -39,14 +40,11 @@ namespace Game
             {
                 gameObject.Draw();
             }
-
-          //character.Draw();
-          //enemy.Draw();
         }
 
         public override void Input()
         {
-           character.Input();
+           player.Input();
         }
 
         public override void Reset()
@@ -60,9 +58,6 @@ namespace Game
             {
                 gameObject.Update();
             }
-
-            //character.Update();
-            //enemy.Update();
 
             currentGameplayTime += Program.deltaTime;
 
@@ -80,25 +75,37 @@ namespace Game
 
             gameObjects.Clear();
 
-            character = new Character(1, 5, 1, .45f, .45f, "ship.png", 400, 530, false);
-            gameObjects.Add(character);
+            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 400, 530);
+            gameObjects.Add(player);
+
+
+            bool lap = false;
 
             for (int i = 0; i < enemyCount; i++)
             {
-                enemy = new Character(1, 0, 1, .75f, .75f, "ship.png", 10 * i * 5, 10 * i * 5, true);
-                enemy.speed = 2;
+                int vel = 10;
 
+                if (lap)
+                {
+                    vel *= -1;
+                    lap = false;
+                }
+                else
+                {
+                    lap = true;
+                }
+
+                enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 100 * i, 10 * i * 5);
                 gameObjects.Add(enemy);
+
+                Console.WriteLine($"ENEMY {i} VEL: {vel}");
             }
 
-            character.onEnemyDeath += OnEnemyDeathHandler;
+            player.OnEnemyDeath += OnEnemyDeathHandler;
 
-            character.gameplayLevel = this;
-
-            //gameObjects.Clear();
-            //gameObjects.Add(character);
-            //gameObjects.Add(enemy);
+            player.gameplayLevel = this;
         }
+
 
         private void OnEnemyDeathHandler()
         {
@@ -109,6 +116,18 @@ namespace Game
             {
                 LevelManager.Instance.SetLevel("Victory");
             }
+        }
+
+        public bool CheckCollision(Vector2 posOne, Vector2 realSizeOne, Vector2 posTwo, Vector2 RealSizeTwo)
+        {
+
+            float distanceX = Math.Abs(posOne.x - posTwo.x);
+            float distanceY = Math.Abs(posOne.y - posTwo.y);
+
+            float sumHalfWidths = realSizeOne.x / 2 + RealSizeTwo.x / 2;
+            float sumHalfHeights = realSizeOne.y / 2 + RealSizeTwo.y / 2;
+
+            return distanceX <= sumHalfWidths && distanceY <= sumHalfHeights;
         }
     }
 
