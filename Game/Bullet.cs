@@ -10,14 +10,14 @@ namespace Game
     {
         public static Bullet CreateBullet(Vector2 pos)
         {
-            Bullet bullet = new Bullet(.25f, .25f, "enemy.png", (int)pos.x, (int)pos.y);
+            Bullet bullet = new Bullet(.25f, .25f, "Bullet.png", (int)pos.x, (int)pos.y);
             return bullet;
         }
     }
 
     public class Bullet : GameObject
     {
-        private bool isALive = true;
+        public bool isALive { get; private set; } = true;
 
         private float lifeCounter = 0;
         private float lifeTime = 5;
@@ -34,10 +34,10 @@ namespace Game
 
             for (int i = 0; i < 4; i++)
             {
-                list.Add(Engine.GetTexture($"{i}.png"));
+                list.Add(Engine.GetTexture($"Bullet.png"));
             }
 
-            idle = new Animation("idle", list, .25f, true);
+            idle = new Animation("idle", list, .25f, false);
 
             currentAnimation = idle;
         }
@@ -64,6 +64,12 @@ namespace Game
             }
 
             base.Update();
+        }
+
+        private void Die()
+        {
+            isALive = false;
+            onBulletDied?.Invoke(this);
         }
 
         public void Reset(Vector2 pos)

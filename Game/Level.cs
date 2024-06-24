@@ -27,7 +27,7 @@ namespace Game
 
         private Player player;
         private Enemy enemy;
-        public List<GameObject> gameObjects = new List<GameObject>();
+        public List<GameObject> listGameObjects = new List<GameObject>();
 
         public Gameplay() 
         {
@@ -36,7 +36,7 @@ namespace Game
 
         public override void Draw()
         {
-            foreach (var gameObject in new List<GameObject>(gameObjects)) 
+            foreach (var gameObject in new List<GameObject>(listGameObjects))
             {
                 gameObject.Draw();
             }
@@ -54,10 +54,12 @@ namespace Game
 
         public override void Update()
         {
-            foreach (var gameObject in new List<GameObject>(gameObjects))
+            foreach (var gameObject in new List<GameObject>(listGameObjects))
             {
                 gameObject.Update();
             }
+
+            CheckBulletEnemyCollision();
 
             currentGameplayTime += Program.deltaTime;
 
@@ -73,10 +75,10 @@ namespace Game
 
             currentEnemyCount = enemyCount;
 
-            gameObjects.Clear();
+            listGameObjects.Clear();
 
-            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 400, 530);
-            gameObjects.Add(player);
+            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 100, 530);
+            listGameObjects.Add(player);
 
 
             bool lap = false;
@@ -96,18 +98,16 @@ namespace Game
                 }
 
                 enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 100 * i, 10 * i * 5);
-                gameObjects.Add(enemy);
+                listGameObjects.Add(enemy);
 
                 Console.WriteLine($"ENEMY {i} VEL: {vel}");
             }
-
-            player.OnEnemyDeath += OnEnemyDeathHandler;
 
             player.gameplayLevel = this;
         }
 
 
-        private void OnEnemyDeathHandler()
+        private void EnemyDeath()
         {
             currentEnemyCount--;
             Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
@@ -115,6 +115,45 @@ namespace Game
             if (currentEnemyCount <= 0)
             {
                 LevelManager.Instance.SetLevel("Victory");
+            }
+        }
+
+        private void CheckBulletEnemyCollision()
+        {
+            List<Enemy> enemiesToRemove = new List<Enemy>();
+            List<Bullet> bulletsToRemove = new List<Bullet>();
+
+            foreach (var gameObject in listGameObjects)
+            {
+                if (gameObject is Bullet bullet && bullet.isALive)
+                {
+                    foreach (var otherGameObject in listGameObjects)
+                    {
+                        if (otherGameObject is Enemy enemy)
+                        {
+                            if (CheckCollision(bullet.Transform.position, bullet.RealSize, enemy.Transform.position, enemy.RealSize))
+                            {
+                                bulletsToRemove.Add(bullet);
+                                enemiesToRemove.Add(enemy);
+
+                                Console.Write("COLISIÓN");
+                                EnemyDeath();
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var bullet in bulletsToRemove)
+            {
+              listGameObjects.Remove(bullet);
+                //De haber un evento, ejecutarlo.
+            }
+
+            foreach (var enemy in enemiesToRemove)
+            {
+                listGameObjects.Remove(enemy);
+                //De haber un evento, ejecutarlo.
             }
         }
 
@@ -182,7 +221,7 @@ namespace Game
 
         public override void Input()
         {
-            if (Engine.GetKey(Keys.SPACE))
+            if (Engine.GetKey(Keys.K))
             {
                 LevelManager.Instance.SetLevel("Menu");
             }
@@ -216,7 +255,7 @@ namespace Game
 
         public override void Input()
         {
-            if (Engine.GetKey(Keys.SPACE))
+            if (Engine.GetKey(Keys.K))
             {
                 LevelManager.Instance.SetLevel("Menu");
             }

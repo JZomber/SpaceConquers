@@ -13,8 +13,6 @@ namespace Game
         private float shootCoolDown = .25f;
         private float currentShootCD = 0;
 
-        public event Action OnEnemyDeath;
-
         private int playerVel;
 
         public Player(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
@@ -41,7 +39,7 @@ namespace Game
                 bullet.Reset(transform.position);
                 bullet.onBulletDied += ReleaseBulletHandler;
 
-                gameplayLevel.gameObjects.Add(bullet);
+                gameplayLevel.listGameObjects.Add(bullet);
                 currentShootCD = 0;
             }
 
@@ -53,11 +51,6 @@ namespace Game
             if (Engine.GetKey(Keys.D))
             {
                 IncrementPosX(playerVel);
-            }
-
-            if (Engine.GetKey(Keys.K)) //Debug purpose
-            {
-                OnEnemyDeath?.Invoke();
             }
 
             base.Input();
@@ -82,7 +75,7 @@ namespace Game
         private void ReleaseBulletHandler(Bullet bulletToRelease)
         {
             bulletsPool.ReleaseObject(bulletToRelease);
-            gameplayLevel.gameObjects.Remove(bulletToRelease);
+            gameplayLevel.listGameObjects.Remove(bulletToRelease);
         }
     }
 }
