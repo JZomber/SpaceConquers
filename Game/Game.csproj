@@ -57,6 +57,9 @@
     </Compile>
     <Compile Include="GameObject.cs" />
     <Compile Include="GameUpdateManager.cs" />
+    <Compile Include="ICollidable.cs" />
+    <Compile Include="IMoveable.cs" />
+    <Compile Include="IShootable.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="LevelManager.cs" />
     <Compile Include="Player.cs" />

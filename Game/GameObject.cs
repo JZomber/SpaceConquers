@@ -2,7 +2,7 @@
 
 namespace Game
 {
-    public class GameObject
+    public class GameObject : ICollidable
     {
         protected string textura;
 
@@ -20,6 +20,8 @@ namespace Game
         protected int RealHeight => (int)(currentAnimation.CurrentFrame.Height * transform.scale.y);
 
         public Vector2 RealSize => new Vector2(RealWidth, RealHeight);
+
+        public Vector2 BottomCenterPosition => new Vector2(transform.position.x + RealWidth / 2, transform.position.y);
 
 
         public GameObject(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY)
@@ -42,7 +44,12 @@ namespace Game
 
         public virtual void Draw()
         {
-            Engine.Draw(currentAnimation.CurrentFrame, transform.position.x, transform.position.y, transform.scale.x, transform.scale.y, 0);
+            Engine.Draw(currentAnimation.CurrentFrame, transform.position.x - RealWidth / 2, transform.position.y - RealHeight, transform.scale.x, transform.scale.y, 0);
+        }
+
+        public virtual void OnCollision(GameObject other)
+        {
+            
         }
     }
 }

@@ -15,20 +15,22 @@ namespace Game
         }
     }
 
-    public class Bullet : GameObject
+    public class Bullet : GameObject, IShootable, IMoveable
     {
-        public bool isALive { get; private set; } = true;
+        public bool isAlive { get; private set; } = true;
 
-        private float lifeCounter = 0;
-        private float lifeTime = 5;
+        private float maxLifeTime = 5;
+        private float currentLifeTime = 0;
 
         private int bulletSpeed = 1000;
 
         public event Action<Bullet> onBulletDied;
 
+        private Enemy enemy;
+
         public Bullet(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : base(p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
         {
-            isALive = true;
+            isAlive = true;
 
             List<Texture> list = new List<Texture>();
 
@@ -44,40 +46,54 @@ namespace Game
 
         public override void Update()
         {
-            if (isALive)
+            if (isAlive)
             {
-                lifeCounter += Program.deltaTime;
+                currentLifeTime += Program.deltaTime;
 
-                if (lifeCounter > lifeTime)
+                if (currentLifeTime > maxLifeTime)
                 {
-                    isALive = false;
+                    isAlive = false;
                     onBulletDied?.Invoke(this);
                 }
 
-                if (PosY < 0 - currentAnimation.CurrentFrame.Height && isALive)
+                if (PosY < 0 - currentAnimation.CurrentFrame.Height && isAlive)
                 {
-                    isALive = false;
+                    isAlive = false;
                     onBulletDied?.Invoke(this);
                 }
 
-                transform.position.y -= bulletSpeed * Program.deltaTime;
+                Move(bulletSpeed);
             }
 
             base.Update();
         }
 
-        private void Die()
+        public void Shoot(Vector2 startPosicion)
         {
-            isALive = false;
-            onBulletDied?.Invoke(this);
+            isAlive = true;
+            transform.position = startPosicion;
+            currentLifeTime = 0;
+            onBulletDied = null;
         }
 
-        public void Reset(Vector2 pos)
+        public void Move(float speed)
         {
-            isALive = true;
-            transform.position = pos;
-            lifeCounter = 0;
-            onBulletDied = null;
+            transform.position.y -= speed * Program.deltaTime;
+        }
+
+        public override void OnCollision(GameObject other)
+        {
+            if (other is Enemy)
+            {
+                isAlive = false;
+                onBulletDied?.Invoke(this);
+            }
+        }
+
+        void IShootable.Die()
+        {
+            isAlive = false;
+            onBulletDied?.Invoke(this);
         }
     }
 }

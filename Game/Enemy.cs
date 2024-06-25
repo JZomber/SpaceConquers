@@ -10,6 +10,8 @@ namespace Game
     {
         private int EnemyVel;
 
+        public event Action onEnemyDeath;
+
         public Enemy(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
                      base(p_vida, p_vel, p_damage, p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
         {
@@ -25,7 +27,7 @@ namespace Game
 
         public override void Update()
         {
-            IncrementPosX(EnemyVel);
+            Move(EnemyVel);
 
             if (PosX > Program.WIDTH + currentAnimation.CurrentFrame.Width)
             {
@@ -37,6 +39,14 @@ namespace Game
             }
 
             base.Update();
+        }
+
+        public override void OnCollision(GameObject other)
+        {
+            if (other is Bullet)
+            {
+                onEnemyDeath?.Invoke();
+            }
         }
     }
 }

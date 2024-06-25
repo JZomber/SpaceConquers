@@ -6,7 +6,7 @@ using System.Security.AccessControl;
 namespace Game
 {
 
-    public class Character : GameObject
+    public class Character : GameObject, IMoveable
     {
         public LifeChanged onLifeLoose;
         public LifeChanged onLifeGained;
@@ -27,10 +27,9 @@ namespace Game
 
         public int speed = 1;
 
-
-        public void IncrementPosX(int x)
+        public void Move(float speed)
         {
-            transform.position.x += x * speed;
+            transform.position.x += 1 * speed;
         }
 
         public void SetPosX(int x)
@@ -77,5 +76,6 @@ namespace Game
             //onLifeLoose?.Invoke(life);
             _onLifeChanged(life);
         }
+
     }
 }

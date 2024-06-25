@@ -36,7 +36,7 @@ namespace Game
             if (Engine.GetKey(Keys.SPACE) && currentShootCD > shootCoolDown)
             {
                 var bullet = bulletsPool.GetElement(transform.position);
-                bullet.Reset(transform.position);
+                bullet.Shoot(transform.position);
                 bullet.onBulletDied += ReleaseBulletHandler;
 
                 gameplayLevel.listGameObjects.Add(bullet);
@@ -45,12 +45,12 @@ namespace Game
 
             if (Engine.GetKey(Keys.A))
             {
-                IncrementPosX(-playerVel);
+                Move(-playerVel);
             }
 
             if (Engine.GetKey(Keys.D))
             {
-                IncrementPosX(playerVel);
+                Move(playerVel);
             }
 
             base.Input();

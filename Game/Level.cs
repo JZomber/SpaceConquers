@@ -98,6 +98,7 @@ namespace Game
                 }
 
                 enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 100 * i, 10 * i * 5);
+                enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
 
                 Console.WriteLine($"ENEMY {i} VEL: {vel}");
@@ -107,7 +108,7 @@ namespace Game
         }
 
 
-        private void EnemyDeath()
+        private void HandlerOnEnemyDeath()
         {
             currentEnemyCount--;
             Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
@@ -120,51 +121,57 @@ namespace Game
 
         private void CheckBulletEnemyCollision()
         {
-            List<Enemy> enemiesToRemove = new List<Enemy>();
-            List<Bullet> bulletsToRemove = new List<Bullet>();
+            List<GameObject> objectsToRemove = new List<GameObject>();
+            List<GameObject> copyListObjects = listGameObjects.ToList();
 
-            foreach (var gameObject in listGameObjects)
+            foreach (var gameObject in copyListObjects)
             {
-                if (gameObject is Bullet bullet && bullet.isALive)
+                if (gameObject is Bullet bullet && bullet.isAlive)
                 {
-                    foreach (var otherGameObject in listGameObjects)
+                    foreach (var otherGameObject in copyListObjects)
                     {
                         if (otherGameObject is Enemy enemy)
                         {
-                            if (CheckCollision(bullet.Transform.position, bullet.RealSize, enemy.Transform.position, enemy.RealSize))
+                            if (CheckCollision(bullet.BottomCenterPosition, bullet.RealSize, enemy.BottomCenterPosition, enemy.RealSize))
                             {
-                                bulletsToRemove.Add(bullet);
-                                enemiesToRemove.Add(enemy);
+                                bullet.OnCollision(enemy);
+                                enemy.OnCollision(bullet);
+
+                                if (!bullet.isAlive)
+                                {
+                                    objectsToRemove.Add(bullet);
+                                }
+
+                                objectsToRemove.Add(enemy);
 
                                 Console.Write("COLISIÓN");
-                                EnemyDeath();
                             }
                         }
                     }
                 }
             }
 
-            foreach (var bullet in bulletsToRemove)
+            foreach (var obj in objectsToRemove.Distinct().ToList())
             {
-              listGameObjects.Remove(bullet);
-                //De haber un evento, ejecutarlo.
-            }
+                if (obj is Bullet)
+                {
+                    listGameObjects.Remove(obj);
+                }
 
-            foreach (var enemy in enemiesToRemove)
-            {
-                listGameObjects.Remove(enemy);
-                //De haber un evento, ejecutarlo.
+                if (obj is Enemy)
+                {
+                    listGameObjects.Remove(obj);
+                }
             }
         }
 
-        public bool CheckCollision(Vector2 posOne, Vector2 realSizeOne, Vector2 posTwo, Vector2 RealSizeTwo)
+        public bool CheckCollision(Vector2 posOne, Vector2 realSizeOne, Vector2 posTwo, Vector2 realSizeTwo)
         {
-
             float distanceX = Math.Abs(posOne.x - posTwo.x);
             float distanceY = Math.Abs(posOne.y - posTwo.y);
 
-            float sumHalfWidths = realSizeOne.x / 2 + RealSizeTwo.x / 2;
-            float sumHalfHeights = realSizeOne.y / 2 + RealSizeTwo.y / 2;
+            float sumHalfWidths = realSizeOne.x / 2 + realSizeTwo.x / 2;
+            float sumHalfHeights = realSizeOne.y / 2 + realSizeTwo.y / 2;
 
             return distanceX <= sumHalfWidths && distanceY <= sumHalfHeights;
         }
