@@ -22,7 +22,7 @@ namespace Game
         private int enemyCount = 8;
         private int currentEnemyCount;
 
-        private float gameplayLimitTime = 30;
+        private float gameplayLimitTime = 20;
         private float currentGameplayTime = 0;
 
         private Player player;
