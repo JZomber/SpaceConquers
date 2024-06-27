@@ -15,7 +15,7 @@ namespace Game
         }
     }
 
-    public class Bullet : GameObject, IShootable, IMoveable
+    public class Bullet : GameObject, IShootable, IMoveable, ICollidable
     {
         public bool isAlive { get; private set; } = true;
 
@@ -25,8 +25,6 @@ namespace Game
         private int bulletSpeed = 1000;
 
         public event Action<Bullet> onBulletDied;
-
-        private Enemy enemy;
 
         public Bullet(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : base(p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
         {
@@ -81,6 +79,14 @@ namespace Game
             transform.position.y -= speed * Program.deltaTime;
         }
 
+
+
+        void IShootable.Die()
+        {
+            isAlive = false;
+            onBulletDied?.Invoke(this);
+        }
+
         public override void OnCollision(GameObject other)
         {
             if (other is Enemy)
@@ -88,12 +94,6 @@ namespace Game
                 isAlive = false;
                 onBulletDied?.Invoke(this);
             }
-        }
-
-        void IShootable.Die()
-        {
-            isAlive = false;
-            onBulletDied?.Invoke(this);
         }
     }
 }

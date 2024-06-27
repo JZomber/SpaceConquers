@@ -37,7 +37,6 @@ namespace Game
             transform.position.x = x;
         }
 
-
         public Character(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) :
                          base(p_sizeX,p_sizeY,p_textura,p_posicionX, p_posicionY)
         {

@@ -71,19 +71,19 @@ namespace Game
 
         private void Initialize()
         {
+            listGameObjects.Clear();
+
             currentGameplayTime = 0;
 
             currentEnemyCount = enemyCount;
 
-            listGameObjects.Clear();
-
-            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 100, 530);
+            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 100, 560);
             listGameObjects.Add(player);
 
 
             bool lap = false;
 
-            for (int i = 0; i < enemyCount; i++)
+            for (int i = 1; i < enemyCount + 1; i++)
             {
                 int vel = 10;
 
@@ -97,11 +97,12 @@ namespace Game
                     lap = true;
                 }
 
-                enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 100 * i, 10 * i * 5);
+                enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 80 * i, 40 * i);
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
 
-                Console.WriteLine($"ENEMY {i} VEL: {vel}");
+
+                //Console.WriteLine($"ENEMY {i} VEL: {vel}");
             }
 
             player.gameplayLevel = this;
@@ -144,7 +145,7 @@ namespace Game
 
                                 objectsToRemove.Add(enemy);
 
-                                Console.Write("COLISIÓN");
+                                //Console.Write("COLISIÓN");
                             }
                         }
                     }
