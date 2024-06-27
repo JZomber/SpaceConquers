@@ -20,7 +20,7 @@ namespace Game
             enemyList.Add(Engine.GetTexture("enemy.png"));
 
             idle = new Animation("idle", enemyList, .25f, false);
-            currentAnimation = idle;
+            SetAnimation(idle);
 
             EnemyVel = p_vel;
         }
@@ -29,7 +29,7 @@ namespace Game
         {
             Move(EnemyVel);
 
-            if (PosX > Program.WIDTH + currentAnimation.CurrentFrame.Width)
+            if (PosX > Program.WIDTH + renderer.GetWidth())
             {
                 SetPosX(-30);
             }

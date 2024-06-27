@@ -29,12 +29,12 @@ namespace Game
 
         public void Move(float speed)
         {
-            transform.position.x += 1 * speed;
+            cTransform.position.x += 1 * speed;
         }
 
         public void SetPosX(int x)
         {
-            transform.position.x = x;
+            cTransform.position.x = x;
         }
 
         public Character(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) :

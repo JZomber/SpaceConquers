@@ -27,6 +27,7 @@ namespace Game
 
         private Player player;
         private Enemy enemy;
+        private TimeCounter timeCounter;
         public List<GameObject> listGameObjects = new List<GameObject>();
 
         public Gameplay() 
@@ -77,7 +78,11 @@ namespace Game
 
             currentEnemyCount = enemyCount;
 
-            player = new Player(1, 5, 1, .45f, .45f, "ship.png", 100, 560);
+            timeCounter = new TimeCounter(1.25f, 1.25f, "ship.png", 80, 600);
+            listGameObjects.Add(timeCounter);
+
+
+            player = new Player(1, 5, 1, .50f, .50f, "ship.png", 100, 560);
             listGameObjects.Add(player);
 
 
@@ -116,6 +121,14 @@ namespace Game
 
             if (currentEnemyCount <= 0)
             {
+                foreach (var gameObject in listGameObjects)
+                {
+                    if (gameObject is Enemy enemy)
+                    {
+                        enemy.onEnemyDeath -= HandlerOnEnemyDeath;
+                    }
+                }
+
                 LevelManager.Instance.SetLevel("Victory");
             }
         }
