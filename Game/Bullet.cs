@@ -39,7 +39,7 @@ namespace Game
 
             idle = new Animation("idle", list, .25f, false);
 
-            currentAnimation = idle;
+            SetAnimation(idle);
         }
 
         public override void Update()
@@ -54,7 +54,7 @@ namespace Game
                     onBulletDied?.Invoke(this);
                 }
 
-                if (PosY < 0 - currentAnimation.CurrentFrame.Height && isAlive)
+                if (PosY < 0 - renderer.GetHeight() && isAlive)
                 {
                     isAlive = false;
                     onBulletDied?.Invoke(this);
@@ -69,14 +69,14 @@ namespace Game
         public void Shoot(Vector2 startPosicion)
         {
             isAlive = true;
-            transform.position = startPosicion;
+            cTransform.position = startPosicion;
             currentLifeTime = 0;
             onBulletDied = null;
         }
 
         public void Move(float speed)
         {
-            transform.position.y -= speed * Program.deltaTime;
+            cTransform.position.y -= speed * Program.deltaTime;
         }
 
 

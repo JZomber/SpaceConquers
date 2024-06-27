@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace Game
 {
+    internal interface ICollidable
+    {
+        void OnCollision(GameObject other);
+    }
+
+    internal interface IMoveable
+    {
+        void Move(float speed);
+    }
+
     internal interface IShootable
     {
         bool isAlive { get; }

@@ -26,7 +26,7 @@ namespace Game
             }
 
             idle = new Animation("idle", playerList, .25f, true);
-            currentAnimation = idle;
+            SetAnimation(idle);
 
             playerVel = p_vel;
         }
@@ -35,8 +35,8 @@ namespace Game
         {
             if (Engine.GetKey(Keys.SPACE) && currentShootCD > shootCoolDown)
             {
-                var bullet = bulletsPool.GetElement(transform.position);
-                bullet.Shoot(transform.position);
+                var bullet = bulletsPool.GetElement(cTransform.position);
+                bullet.Shoot(cTransform.position);
                 bullet.onBulletDied += ReleaseBulletHandler;
 
                 gameplayLevel.listGameObjects.Add(bullet);
@@ -60,7 +60,7 @@ namespace Game
         {
             currentShootCD += Program.deltaTime;
 
-            if (PosX > Program.WIDTH + currentAnimation.CurrentFrame.Width)
+            if (PosX > Program.WIDTH + renderer.GetWidth())
             {
                 SetPosX(-30);
             }
