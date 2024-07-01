@@ -15,6 +15,9 @@ namespace Game
 
         private int playerVel;
 
+        public event Action<Bullet> OnBulletFired;
+        public event Action<Bullet> OnBulletDestroyed;
+
         public Player(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
                       base(p_vida, p_vel, p_damage, p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
         {
@@ -39,7 +42,8 @@ namespace Game
                 bullet.Shoot(cTransform.position);
                 bullet.onBulletDied += ReleaseBulletHandler;
 
-                gameplayLevel.listGameObjects.Add(bullet);
+                //gameplayLevel.listGameObjects.Add(bullet);
+                OnBulletFired?.Invoke(bullet);
                 currentShootCD = 0;
             }
 
@@ -75,7 +79,8 @@ namespace Game
         private void ReleaseBulletHandler(Bullet bulletToRelease)
         {
             bulletsPool.ReleaseObject(bulletToRelease);
-            gameplayLevel.listGameObjects.Remove(bulletToRelease);
+            //gameplayLevel.listGameObjects.Remove(bulletToRelease);
+            OnBulletDestroyed?.Invoke(bulletToRelease);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Game
         private Player player;
         private Enemy enemy;
         private TimeCounter timeCounter;
-        public List<GameObject> listGameObjects = new List<GameObject>();
+        private List<GameObject> listGameObjects = new List<GameObject>();
 
         public Gameplay() 
         {
@@ -83,6 +83,10 @@ namespace Game
 
 
             player = new Player(1, 5, 1, .50f, .50f, "ship.png", 100, 560);
+
+            player.OnBulletFired += HandlerBulletFired;
+            player.OnBulletDestroyed += HandlerBulletDestroyed;
+
             listGameObjects.Add(player);
 
 
@@ -113,6 +117,16 @@ namespace Game
             player.gameplayLevel = this;
         }
 
+        private void HandlerBulletFired(Bullet bullet)
+        {
+            listGameObjects.Add(bullet);
+        }
+
+        private void HandlerBulletDestroyed(Bullet bullet)
+        {
+            listGameObjects.Remove(bullet);
+        }
+
 
         private void HandlerOnEnemyDeath()
         {
@@ -128,6 +142,9 @@ namespace Game
                         enemy.onEnemyDeath -= HandlerOnEnemyDeath;
                     }
                 }
+
+                player.OnBulletFired -= HandlerBulletFired;
+                player.OnBulletDestroyed -= HandlerBulletDestroyed;
 
                 LevelManager.Instance.SetLevel("Victory");
             }
