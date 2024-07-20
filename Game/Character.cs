@@ -11,7 +11,7 @@ namespace Game
         public LifeChanged onLifeLoose;
         public LifeChanged onLifeGained;
 
-        public Gameplay gameplayLevel;
+        public Level gameplayLevel;
 
         private event Action<int> _onLifeChanged;
 

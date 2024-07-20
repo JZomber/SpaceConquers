@@ -12,8 +12,9 @@ namespace Game
 
         private float shootCoolDown = .25f;
         private float currentShootCD = 0;
-
         private int playerVel;
+
+        private bool spaceReleased = true;
 
         public event Action<Bullet> OnBulletFired;
         public event Action<Bullet> OnBulletDestroyed;
@@ -36,7 +37,7 @@ namespace Game
 
         public override void Input()
         {
-            if (Engine.GetKey(Keys.SPACE) && currentShootCD > shootCoolDown)
+            if (Engine.GetKey(Keys.SPACE) && spaceReleased && currentShootCD > shootCoolDown)
             {
                 var bullet = bulletsPool.GetElement(cTransform.position);
                 bullet.Shoot(cTransform.position);
@@ -45,6 +46,13 @@ namespace Game
                 //gameplayLevel.listGameObjects.Add(bullet);
                 OnBulletFired?.Invoke(bullet);
                 currentShootCD = 0;
+
+                spaceReleased = false;
+            }
+
+            if (!Engine.GetKey(Keys.SPACE))
+            {
+                spaceReleased = true;
             }
 
             if (Engine.GetKey(Keys.A))
