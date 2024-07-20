@@ -82,7 +82,7 @@ namespace Game
             listGameObjects.Add(timeCounter);
 
 
-            player = new Player(1, 5, 1, .50f, .50f, "ship.png", 100, 560);
+            player = new Player(1, 5, .50f, .50f, "ship.png", 100, 560);
 
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
@@ -106,12 +106,9 @@ namespace Game
                     lap = true;
                 }
 
-                enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 80 * i, 40 * i);
+                enemy = new Enemy(80 * i, 40 * i, EnemyType.Ranger);
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
-
-
-                //Console.WriteLine($"ENEMY {i} VEL: {vel}");
             }
 
             player.gameplayLevel = this;
@@ -174,8 +171,6 @@ namespace Game
                                 }
 
                                 objectsToRemove.Add(enemy);
-
-                                //Console.Write("COLISIÓN");
                             }
                         }
                     }
@@ -272,7 +267,7 @@ namespace Game
             listGameObjects.Add(timeCounter);
 
 
-            player = new Player(1, 5, 1, .50f, .50f, "ship.png", 100, 560);
+            player = new Player(1, 5, .50f, .50f, "ship.png", 100, 560);
 
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
@@ -296,12 +291,9 @@ namespace Game
                     lap = true;
                 }
 
-                enemy = new Enemy(1, vel, 1, .50f, .50f, "ship.png", 80 * i, 40 * i);
+                enemy = new Enemy(80 * i, 40 * i, EnemyType.Normal);
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
-
-
-                //Console.WriteLine($"ENEMY {i} VEL: {vel}");
             }
 
             player.gameplayLevel = this;
@@ -363,8 +355,6 @@ namespace Game
                                 }
 
                                 objectsToRemove.Add(enemy);
-
-                                //Console.Write("COLISIÓN");
                             }
                         }
                     }

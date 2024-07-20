@@ -6,23 +6,30 @@ using System.Threading.Tasks;
 
 namespace Game
 {
+    public enum EnemyType
+    {
+        Normal,
+        Ranger,
+        Tank
+    }
+
     public class Enemy : Character
     {
         private int EnemyVel;
 
         public event Action onEnemyDeath;
 
-        public Enemy(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
-                     base(p_vida, p_vel, p_damage, p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
+        public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) : 
+                     base(GetLife(type), GetVel(type), GetSizeX(type), GetSizeY(type), GetTexture(type), p_posicionX, p_posicionY)
         {
             List<Texture> enemyList = new List<Texture>();
 
-            enemyList.Add(Engine.GetTexture("enemy.png"));
+            enemyList.Add(Engine.GetTexture(GetTexture(type)));
 
             idle = new Animation("idle", enemyList, .25f, false);
             SetAnimation(idle);
 
-            EnemyVel = p_vel;
+            EnemyVel = GetVel(type);
         }
 
         public override void Update()
@@ -46,6 +53,75 @@ namespace Game
             if (other is Bullet)
             {
                 onEnemyDeath?.Invoke();
+            }
+        }
+
+        private static int GetLife(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                case EnemyType.Ranger:
+                case EnemyType.Tank:
+                    return 3;
+                default:
+                    return 1;
+            }
+        }
+
+        private static int GetVel(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                    return 12;
+                case EnemyType.Ranger:
+                    return 8;
+                case EnemyType.Tank:
+                    return 6;
+                default:
+                    return 10;
+
+            }
+        }
+
+        private static float GetSizeX(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                case EnemyType.Ranger:
+                case EnemyType.Tank:
+                default:
+                    return 0.50f;
+            }
+        }
+
+        private static float GetSizeY(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                case EnemyType.Ranger:
+                case EnemyType.Tank:
+                default:
+                    return 0.50f;
+            }
+        }
+
+        private static string GetTexture(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                    return "enemy.png";
+                case EnemyType.Ranger:
+                    return "ranger.png";
+                case EnemyType.Tank:
+                    return "tank.png";
+                default:
+                    return null;
+
             }
         }
     }
