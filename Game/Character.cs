@@ -11,21 +11,23 @@ namespace Game
         public LifeChanged onLifeLoose;
         public LifeChanged onLifeGained;
 
-        public Gameplay gameplayLevel;
+        public Level gameplayLevel;
 
-        private event Action<int> _onLifeChanged;
+        //private event Action<int> _onLifeChanged;
 
-        public event Action<int> onLifeChanged
-        {
-            add { _onLifeChanged += value; }
-            remove { _onLifeChanged -= value; }
-        }
+        //public event Action<int> onLifeChanged
+        //{
+        //    add { _onLifeChanged += value; }
+        //    remove { _onLifeChanged -= value; }
+        //}
 
         private int life;
         private int velocidad;
         private int damage;
 
         public int speed = 1;
+
+        protected int GetMaxLife => life;
 
         public void Move(float speed)
         {
@@ -37,10 +39,9 @@ namespace Game
             cTransform.position.x = x;
         }
 
-        public Character(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) :
+        public Character(int p_vida, int p_vel, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) :
                          base(p_sizeX,p_sizeY,p_textura,p_posicionX, p_posicionY)
         {
-            damage = p_damage;
             life = p_vida;
             velocidad = p_vel;
         }
@@ -55,25 +56,20 @@ namespace Game
             base.Update();
         }
 
-        private void OnEnemyKilledHandler()
-        {
-            Console.WriteLine("ENEMY ELIMINADO");
-        }
-
-        private void LifeGained()
+        protected void LifeGained()
         {
             life += 1;
             //onLifeGained(life);
             //onLifeGained?.Invoke(life);
-            _onLifeChanged(life);
+            //_onLifeChanged(life);
         }
 
-        private void LifeLoose()
+        protected void LifeLoose()
         {
             life -= 1;
             //onLifeGained(life);
             //onLifeLoose?.Invoke(life);
-            _onLifeChanged(life);
+            //_onLifeChanged(life);
         }
 
     }

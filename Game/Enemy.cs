@@ -1,51 +1,195 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Game
 {
+    public enum EnemyType
+    {
+        Normal,
+        Ranger,
+        Tank
+    }
+
     public class Enemy : Character
     {
-        private int EnemyVel;
+        private int enemyVel;
+        private int enemyLife;
+        private EnemyType currentType;
 
-        public event Action onEnemyDeath;
+        private float shootCoolDown = 2f;
+        private float currenShootCD = 0;
 
-        public Enemy(int p_vida, int p_vel, int p_damage, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
-                     base(p_vida, p_vel, p_damage, p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
+        private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(pos => BulletFactory.CreateBullet(pos, false));
+
+        public event Action<Enemy> onEnemyDeath;
+        public event Action<Bullet> onBulletFired;
+        public event Action<Bullet> onBulletDestroyed;
+        public event Action<Vector2, PowerUpType> onPowerUpCreated;
+
+        private Random rand = new Random();
+
+        public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) :
+                     base(GetLife(type), GetVel(type), GetSizeX(type), GetSizeY(type), GetTexture(type), p_posicionX, p_posicionY)
         {
             List<Texture> enemyList = new List<Texture>();
 
-            enemyList.Add(Engine.GetTexture("enemy.png"));
+            enemyList.Add(Engine.GetTexture(GetTexture(type)));
 
             idle = new Animation("idle", enemyList, .25f, false);
             SetAnimation(idle);
 
-            EnemyVel = p_vel;
+            enemyVel = GetVel(type);
+            enemyLife = GetLife(type);
+            currentType = type;
         }
 
         public override void Update()
         {
-            Move(EnemyVel);
+            Move(enemyVel);
 
             if (PosX > Program.WIDTH + renderer.GetWidth())
             {
-                SetPosX(-30);
+                enemyVel *= -1;
             }
             else if (PosX < -35)
             {
-                SetPosX(850);
+                enemyVel *= -1;
+            }
+
+            if (currentType == EnemyType.Ranger)
+            {
+                currenShootCD += Program.deltaTime;
+                if (currenShootCD > shootCoolDown)
+                {
+                    Shoot();
+                    currenShootCD = 0;
+                }
             }
 
             base.Update();
+        }
+
+        private void Shoot()
+        {
+            var bullet = bulletsPool.GetElement(cTransform.position);
+            bullet.Shoot(cTransform.position);
+            bullet.onBulletDied += ReleaseBulletHandler;
+
+            onBulletFired?.Invoke(bullet);
+        }
+
+        private void ReleaseBulletHandler(Bullet bulletToRelease)
+        {
+            bulletsPool.ReleaseObject(bulletToRelease);
+            onBulletDestroyed?.Invoke(bulletToRelease);
         }
 
         public override void OnCollision(GameObject other)
         {
             if (other is Bullet)
             {
-                onEnemyDeath?.Invoke();
+                if (enemyLife - 1 <= 0)
+                {
+                    float probability = 0.25f; // 25% Probability
+                    if (currentType == EnemyType.Ranger)
+                    {
+                        
+                        if (rand.NextDouble() <= probability)
+                        {
+                            onPowerUpCreated?.Invoke(new Vector2(PosX, PosY), PowerUpType.Health);
+                            Console.WriteLine("=== POWER-UP CREATED | RANGER ===");
+                        }
+                    }
+                    else if (currentType == EnemyType.Tank)
+                    {
+                        if (rand.NextDouble() <= probability)
+                        {
+                            onPowerUpCreated?.Invoke(new Vector2(PosX, PosY), PowerUpType.Time);
+                            Console.WriteLine("=== POWER-UP CREATED | TANK ===");
+                        }
+                    }
+
+                    onEnemyDeath?.Invoke(this);
+                }
+                else
+                {
+                    enemyLife--;
+                }
+            }
+        }
+
+        private static int GetLife(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                    return 1;
+                case EnemyType.Ranger:
+                    return 2;
+                case EnemyType.Tank:
+                    return 3;
+                default:
+                    return 1;
+            }
+        }
+
+        private static int GetVel(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                    return 0; // 12
+                case EnemyType.Ranger:
+                    return 0; // 10
+                case EnemyType.Tank:
+                    return 0; // 8
+                default:
+                    return 10;
+
+            }
+        }
+
+        private static float GetSizeX(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                case EnemyType.Ranger:
+                case EnemyType.Tank:
+                default:
+                    return 0.50f;
+            }
+        }
+
+        private static float GetSizeY(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                case EnemyType.Ranger:
+                case EnemyType.Tank:
+                default:
+                    return 0.50f;
+            }
+        }
+
+        private static string GetTexture(EnemyType type)
+        {
+            switch (type)
+            {
+                case EnemyType.Normal:
+                    return "enemy.png";
+                case EnemyType.Ranger:
+                    return "ranger.png";
+                case EnemyType.Tank:
+                    return "tank.png";
+                default:
+                    return null;
+
             }
         }
     }

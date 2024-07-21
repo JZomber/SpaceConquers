@@ -8,9 +8,9 @@ namespace Game
 {
     public static class BulletFactory
     {
-        public static Bullet CreateBullet(Vector2 pos)
+        public static Bullet CreateBullet(Vector2 pos, bool isPlayerBullet)
         {
-            Bullet bullet = new Bullet(.25f, .25f, "Bullet.png", (int)pos.x, (int)pos.y);
+            Bullet bullet = new Bullet(.25f, .25f, "Bullet.png", (int)pos.x, (int)pos.y, isPlayerBullet);
             return bullet;
         }
     }
@@ -23,12 +23,16 @@ namespace Game
         private float currentLifeTime = 0;
 
         private int bulletSpeed = 1000;
+        private bool isPlayerBullet;
+
+        public bool GetIsPlayerBullet => isPlayerBullet;
 
         public event Action<Bullet> onBulletDied;
 
-        public Bullet(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : base(p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
+        public Bullet(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY, bool p_isPlayerBullet) : base(p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
         {
             isAlive = true;
+            isPlayerBullet = p_isPlayerBullet;
 
             List<Texture> list = new List<Texture>();
 
@@ -60,6 +64,12 @@ namespace Game
                     onBulletDied?.Invoke(this);
                 }
 
+                if (PosY > Program.HEIGHT + renderer.GetHeight() && !isPlayerBullet && isAlive)
+                {
+                    isAlive = false;
+                    onBulletDied?.Invoke(this);
+                }
+
                 Move(bulletSpeed);
             }
 
@@ -76,7 +86,7 @@ namespace Game
 
         public void Move(float speed)
         {
-            cTransform.position.y -= speed * Program.deltaTime;
+            cTransform.position.y += (isPlayerBullet ? -1 : 0.5f) * speed * Program.deltaTime;
         }
 
 
@@ -89,7 +99,12 @@ namespace Game
 
         public override void OnCollision(GameObject other)
         {
-            if (other is Enemy)
+            if (other is Enemy && isPlayerBullet)
+            {
+                isAlive = false;
+                onBulletDied?.Invoke(this);
+            }
+            else if (other is Player && !isPlayerBullet)
             {
                 isAlive = false;
                 onBulletDied?.Invoke(this);

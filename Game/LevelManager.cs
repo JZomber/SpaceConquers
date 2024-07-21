@@ -10,7 +10,8 @@ namespace Game
     public enum LevelType
     {
         Menu,
-        Game,
+        Level1,
+        Level2,
         Win,
         Loose
     }
@@ -24,12 +25,15 @@ namespace Game
 
         private Level currentLevel = null;
 
+        private string lastLevelName = null;
+
 
         public LevelManager() 
         {
             levels.Clear();
             AddNewLevel("Menu", new Menu());
-            AddNewLevel("Jugar", new Gameplay());
+            AddNewLevel("Level_1", new Level_1());
+            AddNewLevel("Level_2", new Level_2());
             AddNewLevel("Victory", new Victory());
             AddNewLevel("Defeat", new Defeat());
 
@@ -39,11 +43,21 @@ namespace Game
         }
 
         public Level CurrentLevel => currentLevel;
+        public string LastLevelName => lastLevelName;
 
         public void SetLevel(string levelName)
         {
             if(levels.TryGetValue(levelName, out var l_currentLevel))
             {
+                if (currentLevel != null)
+                {
+                    lastLevelName = currentLevel.GetType().Name;
+                }
+                else
+                {
+                    lastLevelName = null;
+                }
+
                 currentLevel = l_currentLevel;
                 currentLevel.Reset();
             }
@@ -53,15 +67,18 @@ namespace Game
             }
         }
 
-        public void SetLevel(LevelType p_level)
+        public void SetLevel(LevelType p_level, LevelType levelType)
         {
             switch(p_level) 
             {
                 case LevelType.Menu:
                     currentLevel = new Menu();
                     break;
-                case LevelType.Game:
-                    currentLevel = new Gameplay();
+                case LevelType.Level1:
+                    currentLevel = new Level_1();
+                    break;
+                case LevelType.Level2:
+                    currentLevel = new Level_2();
                     break;
                 case LevelType.Win:
                     currentLevel = new Victory();
@@ -76,6 +93,5 @@ namespace Game
         {
             levels.Add(name, level);
         }
-
     }
 }

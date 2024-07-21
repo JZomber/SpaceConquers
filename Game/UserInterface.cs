@@ -32,4 +32,23 @@ namespace Game
             base.Update();
         }
     }
+
+    public class PlayerLives : GameObject
+    {
+        public PlayerLives(float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : base(p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
+        {
+            List<Texture> list = new List<Texture>();
+
+            list.Add(Engine.GetTexture($"playerShip.png"));
+
+            idle = new Animation("idle", list, 1f, false);
+
+            SetAnimation(idle);
+        }
+
+        public override void Draw()
+        {
+            base.Draw();
+        }
+    }
 }
