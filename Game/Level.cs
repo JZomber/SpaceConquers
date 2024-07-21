@@ -75,18 +75,14 @@ namespace Game
             listGameObjects.Clear();
 
             currentGameplayTime = 0;
-
             currentEnemyCount = enemyCount;
 
             timeCounter = new TimeCounter(1.25f, 1.25f, "ship.png", 80, 600);
             listGameObjects.Add(timeCounter);
 
-
             player = new Player(1, 5, .50f, .50f, "ship.png", 100, 560);
-
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
-
             listGameObjects.Add(player);
 
 
@@ -94,19 +90,17 @@ namespace Game
 
             for (int i = 1; i < enemyCount + 1; i++)
             {
-                int vel = 10;
-
                 if (lap)
                 {
-                    vel *= -1;
                     lap = false;
+                    enemy = new Enemy(80 * i, 40 * i, EnemyType.Ranger);
                 }
                 else
                 {
                     lap = true;
+                    enemy = new Enemy(80 * i, 40 * i, EnemyType.Normal);
                 }
-
-                enemy = new Enemy(80 * i, 40 * i, EnemyType.Ranger);
+                
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
             }
@@ -125,23 +119,20 @@ namespace Game
         }
 
 
-        private void HandlerOnEnemyDeath()
+        private void HandlerOnEnemyDeath(Enemy obj)
         {
             currentEnemyCount--;
             Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
 
+            obj.onEnemyDeath -= HandlerOnEnemyDeath;
+            listGameObjects.Remove(obj);
+
             if (currentEnemyCount <= 0)
             {
-                foreach (var gameObject in listGameObjects)
-                {
-                    if (gameObject is Enemy enemy)
-                    {
-                        enemy.onEnemyDeath -= HandlerOnEnemyDeath;
-                    }
-                }
-
                 player.OnBulletFired -= HandlerBulletFired;
                 player.OnBulletDestroyed -= HandlerBulletDestroyed;
+
+                listGameObjects.Clear();
 
                 LevelManager.Instance.SetLevel("Victory");
             }
@@ -169,8 +160,6 @@ namespace Game
                                 {
                                     objectsToRemove.Add(bullet);
                                 }
-
-                                objectsToRemove.Add(enemy);
                             }
                         }
                     }
@@ -180,11 +169,6 @@ namespace Game
             foreach (var obj in objectsToRemove.Distinct().ToList())
             {
                 if (obj is Bullet)
-                {
-                    listGameObjects.Remove(obj);
-                }
-
-                if (obj is Enemy)
                 {
                     listGameObjects.Remove(obj);
                 }
@@ -204,7 +188,7 @@ namespace Game
     }
     public class Level_2 : Level
     {
-        private int enemyCount = 3;
+        private int enemyCount = 8;
         private int currentEnemyCount;
 
         private float gameplayLimitTime = 20;
@@ -279,19 +263,17 @@ namespace Game
 
             for (int i = 1; i < enemyCount + 1; i++)
             {
-                int vel = 10;
-
                 if (lap)
                 {
-                    vel *= -1;
                     lap = false;
+                    enemy = new Enemy(80 * i, 40 * i, EnemyType.Ranger);
                 }
                 else
                 {
                     lap = true;
+                    enemy = new Enemy(80 * i, 40 * i, EnemyType.Tank);
                 }
 
-                enemy = new Enemy(80 * i, 40 * i, EnemyType.Normal);
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 listGameObjects.Add(enemy);
             }
@@ -309,23 +291,20 @@ namespace Game
             listGameObjects.Remove(bullet);
         }
 
-        private void HandlerOnEnemyDeath()
+        private void HandlerOnEnemyDeath(Enemy obj)
         {
             currentEnemyCount--;
             Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
 
+            obj.onEnemyDeath -= HandlerOnEnemyDeath;
+            listGameObjects.Remove(obj);
+
             if (currentEnemyCount <= 0)
             {
-                foreach (var gameObject in listGameObjects)
-                {
-                    if (gameObject is Enemy enemy)
-                    {
-                        enemy.onEnemyDeath -= HandlerOnEnemyDeath;
-                    }
-                }
-
                 player.OnBulletFired -= HandlerBulletFired;
                 player.OnBulletDestroyed -= HandlerBulletDestroyed;
+
+                listGameObjects.Clear();
 
                 LevelManager.Instance.SetLevel("Victory");
             }
@@ -353,8 +332,6 @@ namespace Game
                                 {
                                     objectsToRemove.Add(bullet);
                                 }
-
-                                objectsToRemove.Add(enemy);
                             }
                         }
                     }
@@ -364,11 +341,6 @@ namespace Game
             foreach (var obj in objectsToRemove.Distinct().ToList())
             {
                 if (obj is Bullet)
-                {
-                    listGameObjects.Remove(obj);
-                }
-
-                if (obj is Enemy)
                 {
                     listGameObjects.Remove(obj);
                 }

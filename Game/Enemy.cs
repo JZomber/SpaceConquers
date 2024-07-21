@@ -15,11 +15,12 @@ namespace Game
 
     public class Enemy : Character
     {
-        private int EnemyVel;
+        private int enemyVel;
+        private int enemyLife;
 
-        public event Action onEnemyDeath;
+        public event Action<Enemy> onEnemyDeath;
 
-        public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) : 
+        public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) :
                      base(GetLife(type), GetVel(type), GetSizeX(type), GetSizeY(type), GetTexture(type), p_posicionX, p_posicionY)
         {
             List<Texture> enemyList = new List<Texture>();
@@ -29,20 +30,21 @@ namespace Game
             idle = new Animation("idle", enemyList, .25f, false);
             SetAnimation(idle);
 
-            EnemyVel = GetVel(type);
+            enemyVel = GetVel(type);
+            enemyLife = GetLife(type);
         }
 
         public override void Update()
         {
-            Move(EnemyVel);
+            Move(enemyVel);
 
             if (PosX > Program.WIDTH + renderer.GetWidth())
             {
-                SetPosX(-30);
+                enemyVel *= -1;
             }
             else if (PosX < -35)
             {
-                SetPosX(850);
+                enemyVel *= -1;
             }
 
             base.Update();
@@ -52,7 +54,14 @@ namespace Game
         {
             if (other is Bullet)
             {
-                onEnemyDeath?.Invoke();
+                if (enemyLife - 1 <= 0)
+                {
+                    onEnemyDeath?.Invoke(this);
+                }
+                else
+                {
+                    enemyLife--;
+                }
             }
         }
 
@@ -61,7 +70,9 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
+                    return 1;
                 case EnemyType.Ranger:
+                    return 2;
                 case EnemyType.Tank:
                     return 3;
                 default:
@@ -74,11 +85,11 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
-                    return 12;
+                    return 0; // 12
                 case EnemyType.Ranger:
-                    return 8;
+                    return 0; // 10
                 case EnemyType.Tank:
-                    return 6;
+                    return 0; // 8
                 default:
                     return 10;
 
