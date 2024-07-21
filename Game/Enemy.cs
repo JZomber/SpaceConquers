@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,8 +18,16 @@ namespace Game
     {
         private int enemyVel;
         private int enemyLife;
+        private EnemyType currentType;
+
+        private float shootCoolDown = 2f;
+        private float currenShootCD = 0;
+
+        private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(pos => BulletFactory.CreateBullet(pos, false));
 
         public event Action<Enemy> onEnemyDeath;
+        public event Action<Bullet> onBulletFired;
+        public event Action<Bullet> onBulletDestroyed;
 
         public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) :
                      base(GetLife(type), GetVel(type), GetSizeX(type), GetSizeY(type), GetTexture(type), p_posicionX, p_posicionY)
@@ -32,6 +41,7 @@ namespace Game
 
             enemyVel = GetVel(type);
             enemyLife = GetLife(type);
+            currentType = type;
         }
 
         public override void Update()
@@ -47,7 +57,32 @@ namespace Game
                 enemyVel *= -1;
             }
 
+            if (currentType == EnemyType.Ranger)
+            {
+                currenShootCD += Program.deltaTime;
+                if (currenShootCD > shootCoolDown)
+                {
+                    Shoot();
+                    currenShootCD = 0;
+                }
+            }
+
             base.Update();
+        }
+
+        private void Shoot()
+        {
+            var bullet = bulletsPool.GetElement(cTransform.position);
+            bullet.Shoot(cTransform.position);
+            bullet.onBulletDied += ReleaseBulletHandler;
+
+            onBulletFired?.Invoke(bullet);
+        }
+
+        private void ReleaseBulletHandler(Bullet bulletToRelease)
+        {
+            bulletsPool.ReleaseObject(bulletToRelease);
+            onBulletDestroyed?.Invoke(bulletToRelease);
         }
 
         public override void OnCollision(GameObject other)
@@ -85,11 +120,11 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
-                    return 0; // 12
+                    return 12; // 12
                 case EnemyType.Ranger:
-                    return 0; // 10
+                    return 10; // 10
                 case EnemyType.Tank:
-                    return 0; // 8
+                    return 8; // 8
                 default:
                     return 10;
 

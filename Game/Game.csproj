@@ -60,6 +60,8 @@
     <Compile Include="Interfaces.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="LevelManager.cs" />
+    <Compile Include="Level_1.cs" />
+    <Compile Include="Level_2.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

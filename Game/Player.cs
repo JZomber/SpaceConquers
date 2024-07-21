@@ -8,16 +8,22 @@ namespace Game
 {
     public class Player : Character
     {
-        private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(BulletFactory.CreateBullet);
+        private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(pos => BulletFactory.CreateBullet(pos, true));
 
         private float shootCoolDown = .25f;
         private float currentShootCD = 0;
         private int playerVel;
+        private int playerLife;
 
         private bool spaceReleased = true;
 
         public event Action<Bullet> OnBulletFired;
         public event Action<Bullet> OnBulletDestroyed;
+
+
+        public event Action OnPlayerLifeGained;
+        public event Action OnPlayerLifeLoosed;
+        public event Action OnPlayerDeath;
 
         public Player(int p_vida, int p_vel, float p_sizeX, float p_sizeY, string p_textura, int p_posicionX, int p_posicionY) : 
                       base(p_vida, p_vel, p_sizeX, p_sizeY, p_textura, p_posicionX, p_posicionY)
@@ -33,6 +39,7 @@ namespace Game
             SetAnimation(idle);
 
             playerVel = p_vel;
+            playerLife = GetMaxLife;
         }
 
         public override void Input()
@@ -87,6 +94,23 @@ namespace Game
         {
             bulletsPool.ReleaseObject(bulletToRelease);
             OnBulletDestroyed?.Invoke(bulletToRelease);
+        }
+
+        public override void OnCollision(GameObject other)
+        {
+            if (other is Bullet)
+            {
+                if (playerLife - 1 <= 0)
+                {
+                    OnPlayerDeath?.Invoke();
+                    Console.WriteLine("PLAYER ELIMINADO");
+                }
+                else
+                {
+                    playerLife--;
+                    OnPlayerLifeLoosed?.Invoke();
+                }
+            }
         }
     }
 }
