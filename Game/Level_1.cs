@@ -18,6 +18,7 @@ namespace Game
         private Enemy enemy;
         private TimeCounter timeCounter;
         private PlayerLives life;
+        private PowerUp powerUp;
         private List<GameObject> listGameObjects = new List<GameObject>();
         private List<PlayerLives> playerLivesObjects = new List<PlayerLives>();
 
@@ -53,7 +54,9 @@ namespace Game
                 gameObject.Update();
             }
 
-            CheckBulletEnemyCollision();
+            CheckBulletCollisions();
+
+            CheckPowerupsCollision();
 
             currentGameplayTime += Program.deltaTime;
 
@@ -77,6 +80,7 @@ namespace Game
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
             player.OnPlayerLifeLoosed += HandlerUpdatePlayerLives;
+            player.OnPlayerLifeGained += HandlerUpdatePlayerLives;
             player.OnPlayerDeath += HandlerOnPlayerDeath;
 
             listGameObjects.Add(player);
@@ -87,7 +91,6 @@ namespace Game
                 playerLivesObjects.Add(life);
                 listGameObjects.Add(life);
             }
-
 
             bool lap = false;
             for (int i = 1; i < enemyCount + 1; i++)
@@ -106,10 +109,45 @@ namespace Game
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 enemy.onBulletFired += HandlerBulletFired;
                 enemy.onBulletDestroyed += HandlerBulletDestroyed;
+                enemy.onPowerUpCreated += HandlerPowerUpCreation;
                 listGameObjects.Add(enemy);
             }
 
             player.gameplayLevel = this;
+        }
+
+        private void HandlerBulletFired(Bullet bullet)
+        {
+            listGameObjects.Add(bullet);
+        }
+
+        private void HandlerBulletDestroyed(Bullet bullet)
+        {
+            listGameObjects.Remove(bullet);
+        }
+
+
+        private void HandlerOnEnemyDeath(Enemy obj)
+        {
+            currentEnemyCount--;
+            listGameObjects.Remove(obj);
+
+            Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
+
+            if (currentEnemyCount <= 0)
+            {
+                UnsubscribeAllEvents();
+
+                listGameObjects.Clear();
+
+                LevelManager.Instance.SetLevel("Victory");
+            }
+        }
+
+        private void HandlerPowerUpCreation(Vector2 position, PowerUpType type)
+        {
+            powerUp = new PowerUp((int)position.x, (int)position.y, type);
+            listGameObjects.Add(powerUp);
         }
 
         private void HandlerUpdatePlayerLives()
@@ -129,47 +167,9 @@ namespace Game
             }
         }
 
-        private void HandlerBulletFired(Bullet bullet)
-        {
-            listGameObjects.Add(bullet);
-        }
-
-        private void HandlerBulletDestroyed(Bullet bullet)
-        {
-            listGameObjects.Remove(bullet);
-        }
-
-
-        private void HandlerOnEnemyDeath(Enemy obj)
-        {
-            currentEnemyCount--;
-            Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
-
-            obj.onEnemyDeath -= HandlerOnEnemyDeath;
-            obj.onBulletFired -= HandlerBulletFired;
-            obj.onBulletDestroyed -= HandlerBulletDestroyed;
-            listGameObjects.Remove(obj);
-
-            if (currentEnemyCount <= 0)
-            {
-                UnsubscribePlayerEvents();
-
-                listGameObjects.Clear();
-
-                LevelManager.Instance.SetLevel("Victory");
-            }
-        }
-
         private void HandlerOnPlayerDeath()
         {
-            foreach (Enemy enemy in listGameObjects.OfType<Enemy>())
-            {
-                enemy.onEnemyDeath -= HandlerOnEnemyDeath;
-                enemy.onBulletFired -= HandlerBulletFired;
-                enemy.onBulletDestroyed -= HandlerBulletDestroyed;
-            }
-
-            UnsubscribePlayerEvents();
+            UnsubscribeAllEvents();
 
             listGameObjects.Clear();
 
@@ -180,6 +180,8 @@ namespace Game
         {
             player.OnBulletFired -= HandlerBulletFired;
             player.OnBulletDestroyed -= HandlerBulletDestroyed;
+            player.OnPlayerLifeLoosed -= HandlerUpdatePlayerLives;
+            player.OnPlayerLifeGained -= HandlerUpdatePlayerLives;
             player.OnPlayerDeath -= HandlerOnPlayerDeath;
         }
 
@@ -196,11 +198,12 @@ namespace Game
                     enemy.onEnemyDeath -= HandlerOnEnemyDeath;
                     enemy.onBulletFired -= HandlerBulletFired;
                     enemy.onBulletDestroyed -= HandlerBulletDestroyed;
+                    enemy.onPowerUpCreated -= HandlerPowerUpCreation;
                 }
             }
         }
 
-        private void CheckBulletEnemyCollision()
+        private void CheckBulletCollisions()
         {
             List<GameObject> objectsToRemove = new List<GameObject>();
             List<GameObject> copyListObjects = listGameObjects.ToList();
@@ -244,6 +247,43 @@ namespace Game
             foreach (var obj in objectsToRemove.Distinct().ToList())
             {
                 if (obj is Bullet)
+                {
+                    listGameObjects.Remove(obj);
+                }
+            }
+        }
+
+        private void CheckPowerupsCollision()
+        {
+            List<GameObject> objectsToRemove = new List<GameObject>();
+            List<GameObject> copyListObjects = listGameObjects.ToList();
+
+            foreach (var gameObject in copyListObjects)
+            {
+                if (gameObject is PowerUp power && power.isAlive)
+                {
+                    foreach (var otherGameObject in copyListObjects)
+                    {
+                        if (otherGameObject is Player player)
+                        {
+                            if (CheckCollision(power.BottomCenterPosition, power.RealSize, player.BottomCenterPosition, player.RealSize))
+                            {
+                                power.OnCollision(player);
+                                player.OnCollision(power);
+
+                                if (!power.isAlive)
+                                {
+                                    objectsToRemove.Add(power);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var obj in objectsToRemove.Distinct().ToList())
+            {
+                if (obj is PowerUp)
                 {
                     listGameObjects.Remove(obj);
                 }

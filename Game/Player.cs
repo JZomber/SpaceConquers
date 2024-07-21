@@ -19,6 +19,7 @@ namespace Game
         public event Action<Bullet> OnBulletFired;
         public event Action<Bullet> OnBulletDestroyed;
 
+        public event Action<PowerUpType> OnPowerUpCollected;
         public event Action OnPlayerLifeGained;
         public event Action OnPlayerLifeLoosed;
         public event Action OnPlayerDeath;
@@ -103,6 +104,18 @@ namespace Game
                 {
                     playerLife--;
                     OnPlayerLifeLoosed?.Invoke();
+                }
+            }
+            else if (other is PowerUp power)
+            {
+                if (power.currentType == PowerUpType.Health)
+                {
+                    playerLife++;
+                    OnPlayerLifeGained?.Invoke();
+                }
+                else if (power.currentType == PowerUpType.Time)
+                {
+                    OnPowerUpCollected?.Invoke(power.currentType);
                 }
             }
         }

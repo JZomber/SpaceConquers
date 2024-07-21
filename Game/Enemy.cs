@@ -28,6 +28,9 @@ namespace Game
         public event Action<Enemy> onEnemyDeath;
         public event Action<Bullet> onBulletFired;
         public event Action<Bullet> onBulletDestroyed;
+        public event Action<Vector2, PowerUpType> onPowerUpCreated;
+
+        private Random rand = new Random();
 
         public Enemy(int p_posicionX, int p_posicionY, EnemyType type = EnemyType.Normal) :
                      base(GetLife(type), GetVel(type), GetSizeX(type), GetSizeY(type), GetTexture(type), p_posicionX, p_posicionY)
@@ -91,6 +94,25 @@ namespace Game
             {
                 if (enemyLife - 1 <= 0)
                 {
+                    float probability = 0.25f; // 25% Probability
+                    if (currentType == EnemyType.Ranger)
+                    {
+                        
+                        if (rand.NextDouble() <= probability)
+                        {
+                            onPowerUpCreated?.Invoke(new Vector2(PosX, PosY), PowerUpType.Health);
+                            Console.WriteLine("=== POWER-UP CREATED | RANGER ===");
+                        }
+                    }
+                    else if (currentType == EnemyType.Tank)
+                    {
+                        if (rand.NextDouble() <= probability)
+                        {
+                            onPowerUpCreated?.Invoke(new Vector2(PosX, PosY), PowerUpType.Time);
+                            Console.WriteLine("=== POWER-UP CREATED | TANK ===");
+                        }
+                    }
+
                     onEnemyDeath?.Invoke(this);
                 }
                 else
@@ -120,11 +142,11 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
-                    return 12; // 12
+                    return 0; // 12
                 case EnemyType.Ranger:
-                    return 10; // 10
+                    return 0; // 10
                 case EnemyType.Tank:
-                    return 8; // 8
+                    return 0; // 8
                 default:
                     return 10;
 

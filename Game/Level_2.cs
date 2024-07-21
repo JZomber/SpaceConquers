@@ -17,7 +17,10 @@ namespace Game
         private Player player;
         private Enemy enemy;
         private TimeCounter timeCounter;
+        private PlayerLives life;
+        private PowerUp powerUp;
         private List<GameObject> listGameObjects = new List<GameObject>();
+        private List<PlayerLives> playerLivesObjects = new List<PlayerLives>();
 
         public Level_2()
         {
@@ -51,7 +54,9 @@ namespace Game
                 gameObject.Update();
             }
 
-            CheckBulletEnemyCollision();
+            CheckBulletCollisions();
+
+            CheckPowerupsCollision();
 
             currentGameplayTime += Program.deltaTime;
 
@@ -71,16 +76,24 @@ namespace Game
             timeCounter = new TimeCounter(1.25f, 1.25f, "ship.png", 80, 600);
             listGameObjects.Add(timeCounter);
 
-            player = new Player(3, 5, .50f, .50f, "ship.png", 100, 560);
+            player = new Player(3, 5, .75f, .75f, "ship.png", 100, 560);
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
+            player.OnPlayerLifeLoosed += HandlerUpdatePlayerLives;
+            player.OnPlayerLifeGained += HandlerUpdatePlayerLives;
+            player.OnPowerUpCollected += HandlerApplyPowerUp;
             player.OnPlayerDeath += HandlerOnPlayerDeath;
 
             listGameObjects.Add(player);
 
+            for (int i = 0; i < player.playerLife; i++)
+            {
+                life = new PlayerLives(.50f, .50f, "ship.png", 650 + (i * 60), 590);
+                playerLivesObjects.Add(life);
+                listGameObjects.Add(life);
+            }
 
             bool lap = false;
-
             for (int i = 1; i < enemyCount + 1; i++)
             {
                 if (lap)
@@ -97,10 +110,25 @@ namespace Game
                 enemy.onEnemyDeath += HandlerOnEnemyDeath;
                 enemy.onBulletFired += HandlerBulletFired;
                 enemy.onBulletDestroyed += HandlerBulletDestroyed;
+                enemy.onPowerUpCreated += HandlerPowerUpCreation;
                 listGameObjects.Add(enemy);
             }
 
             player.gameplayLevel = this;
+        }
+
+        private void ResetTimer()
+        {
+            var timeCounterToRemove = listGameObjects.OfType<TimeCounter>().FirstOrDefault();
+            if (timeCounterToRemove != null)
+            {
+                listGameObjects.Remove(timeCounterToRemove);
+            }
+
+            timeCounter = new TimeCounter(1.25f, 1.25f, "ship.png", 80, 600);
+            listGameObjects.Insert(0, timeCounter);
+
+            currentGameplayTime = 0;
         }
 
         private void HandlerBulletFired(Bullet bullet)
@@ -117,16 +145,13 @@ namespace Game
         private void HandlerOnEnemyDeath(Enemy obj)
         {
             currentEnemyCount--;
-            Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
-
-            obj.onEnemyDeath -= HandlerOnEnemyDeath;
-            obj.onBulletFired -= HandlerBulletFired;
-            obj.onBulletDestroyed -= HandlerBulletDestroyed;
             listGameObjects.Remove(obj);
+
+            Console.WriteLine($"ENEMIGO ELIMINADO | ENEMIGOS RESTANTES {currentEnemyCount}");
 
             if (currentEnemyCount <= 0)
             {
-                UnsubscribePlayerEvents();
+                UnsubscribeAllEvents();
 
                 listGameObjects.Clear();
 
@@ -134,16 +159,44 @@ namespace Game
             }
         }
 
-        private void HandlerOnPlayerDeath()
+        private void HandlerPowerUpCreation(Vector2 position, PowerUpType type)
         {
-            foreach (Enemy enemy in listGameObjects.OfType<Enemy>())
+            powerUp = new PowerUp((int)position.x, (int)position.y, type);
+            listGameObjects.Add(powerUp);
+        }
+
+        private void HandlerApplyPowerUp(PowerUpType type)
+        {
+            switch (type)
             {
-                enemy.onEnemyDeath -= HandlerOnEnemyDeath;
-                enemy.onBulletFired -= HandlerBulletFired;
-                enemy.onBulletDestroyed -= HandlerBulletDestroyed;
+                case PowerUpType.Time:
+                    ResetTimer();
+                    return;
+                default: 
+                    break;
+            }
+        }
+
+        private void HandlerUpdatePlayerLives()
+        {
+            foreach (var life in playerLivesObjects)
+            {
+                listGameObjects.Remove(life);
             }
 
-            UnsubscribePlayerEvents();
+            playerLivesObjects.Clear();
+
+            for (int i = 0; i < player.playerLife; i++)
+            {
+                var life = new PlayerLives(.50f, .50f, "ship.png", 650 + (i * 60), 590);
+                playerLivesObjects.Add(life);
+                listGameObjects.Add(life);
+            }
+        }
+
+        private void HandlerOnPlayerDeath()
+        {
+            UnsubscribeAllEvents();
 
             listGameObjects.Clear();
 
@@ -154,7 +207,10 @@ namespace Game
         {
             player.OnBulletFired -= HandlerBulletFired;
             player.OnBulletDestroyed -= HandlerBulletDestroyed;
+            player.OnPlayerLifeLoosed -= HandlerUpdatePlayerLives;
+            player.OnPlayerLifeGained -= HandlerUpdatePlayerLives;
             player.OnPlayerDeath -= HandlerOnPlayerDeath;
+            player.OnPowerUpCollected -= HandlerApplyPowerUp;
         }
 
         private void UnsubscribeAllEvents()
@@ -170,11 +226,12 @@ namespace Game
                     enemy.onEnemyDeath -= HandlerOnEnemyDeath;
                     enemy.onBulletFired -= HandlerBulletFired;
                     enemy.onBulletDestroyed -= HandlerBulletDestroyed;
+                    enemy.onPowerUpCreated -= HandlerPowerUpCreation;
                 }
             }
         }
 
-        private void CheckBulletEnemyCollision()
+        private void CheckBulletCollisions()
         {
             List<GameObject> objectsToRemove = new List<GameObject>();
             List<GameObject> copyListObjects = listGameObjects.ToList();
@@ -218,6 +275,43 @@ namespace Game
             foreach (var obj in objectsToRemove.Distinct().ToList())
             {
                 if (obj is Bullet)
+                {
+                    listGameObjects.Remove(obj);
+                }
+            }
+        }
+
+        private void CheckPowerupsCollision()
+        {
+            List<GameObject> objectsToRemove = new List<GameObject>();
+            List<GameObject> copyListObjects = listGameObjects.ToList();
+
+            foreach (var gameObject in copyListObjects)
+            {
+                if (gameObject is PowerUp power && power.isAlive)
+                {
+                    foreach (var otherGameObject in copyListObjects)
+                    {
+                        if (otherGameObject is Player player)
+                        {
+                            if (CheckCollision(power.BottomCenterPosition, power.RealSize, player.BottomCenterPosition, player.RealSize))
+                            {
+                                power.OnCollision(player);
+                                player.OnCollision(power);
+
+                                if (!power.isAlive)
+                                {
+                                    objectsToRemove.Add(power);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var obj in objectsToRemove.Distinct().ToList())
+            {
+                if (obj is PowerUp)
                 {
                     listGameObjects.Remove(obj);
                 }

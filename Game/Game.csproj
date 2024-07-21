@@ -63,6 +63,7 @@
     <Compile Include="Level_1.cs" />
     <Compile Include="Level_2.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="PowerUp.cs" />
     <Compile Include="Program.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
