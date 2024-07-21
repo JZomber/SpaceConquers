@@ -17,7 +17,9 @@ namespace Game
         private Player player;
         private Enemy enemy;
         private TimeCounter timeCounter;
+        private PlayerLives life;
         private List<GameObject> listGameObjects = new List<GameObject>();
+        private List<PlayerLives> playerLivesObjects = new List<PlayerLives>();
 
         public Level_1()
         {
@@ -71,16 +73,23 @@ namespace Game
             timeCounter = new TimeCounter(1.25f, 1.25f, "ship.png", 80, 600);
             listGameObjects.Add(timeCounter);
 
-            player = new Player(3, 5, .50f, .50f, "ship.png", 100, 560);
+            player = new Player(3, 5, .75f, .75f, "ship.png", 100, 560);
             player.OnBulletFired += HandlerBulletFired;
             player.OnBulletDestroyed += HandlerBulletDestroyed;
+            player.OnPlayerLifeLoosed += HandlerUpdatePlayerLives;
             player.OnPlayerDeath += HandlerOnPlayerDeath;
 
             listGameObjects.Add(player);
 
+            for (int i = 0; i < player.playerLife; i++)
+            {
+                life = new PlayerLives(.50f, .50f, "ship.png", 650 + (i*60), 590);
+                playerLivesObjects.Add(life);
+                listGameObjects.Add(life);
+            }
+
 
             bool lap = false;
-
             for (int i = 1; i < enemyCount + 1; i++)
             {
                 if (lap)
@@ -101,6 +110,23 @@ namespace Game
             }
 
             player.gameplayLevel = this;
+        }
+
+        private void HandlerUpdatePlayerLives()
+        {
+            foreach (var life in playerLivesObjects)
+            {
+                listGameObjects.Remove(life);
+            }
+
+            playerLivesObjects.Clear();
+
+            for (int i = 0; i < player.playerLife; i++)
+            {
+                var life = new PlayerLives(.50f, .50f, "ship.png", 650 + (i * 60), 590);
+                playerLivesObjects.Add(life);
+                listGameObjects.Add(life);
+            }
         }
 
         private void HandlerBulletFired(Bullet bullet)

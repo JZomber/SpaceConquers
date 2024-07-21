@@ -13,13 +13,11 @@ namespace Game
         private float shootCoolDown = .25f;
         private float currentShootCD = 0;
         private int playerVel;
-        private int playerLife;
-
         private bool spaceReleased = true;
+        public int playerLife { get ; private set; }
 
         public event Action<Bullet> OnBulletFired;
         public event Action<Bullet> OnBulletDestroyed;
-
 
         public event Action OnPlayerLifeGained;
         public event Action OnPlayerLifeLoosed;
@@ -30,10 +28,7 @@ namespace Game
         {
             List<Texture> playerList = new List<Texture>();
 
-            for (int i = 0; i < 4; i++)
-            {
-                playerList.Add(Engine.GetTexture($"{i}.png"));
-            }
+            playerList.Add(Engine.GetTexture($"playerShip.png"));
 
             idle = new Animation("idle", playerList, .25f, true);
             SetAnimation(idle);
@@ -103,7 +98,6 @@ namespace Game
                 if (playerLife - 1 <= 0)
                 {
                     OnPlayerDeath?.Invoke();
-                    Console.WriteLine("PLAYER ELIMINADO");
                 }
                 else
                 {
