@@ -114,7 +114,7 @@ namespace Game
         protected int RealHeight => (int)(renderer.GetHeight() * cTransform.scale.y);
 
         public Vector2 RealSize => new Vector2(RealWidth, RealHeight);
-        public Vector2 BottomCenterPosition => new Vector2(cTransform.position.x + RealWidth / 2, cTransform.position.y);
+        public Vector2 BottomCenterPosition => new Vector2(cTransform.position.x, cTransform.position.y);
 
         public int p_RealWidth => RealWidth;
         public int p_RealHeight => RealHeight;
