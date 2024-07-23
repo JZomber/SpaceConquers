@@ -20,7 +20,7 @@ namespace Game
         private int enemyLife;
         private EnemyType currentType;
 
-        private float shootCoolDown = 2f;
+        private float shootCoolDown = 1f;
         private float currenShootCD = 0;
 
         private ElementPool<Vector2, Bullet> bulletsPool = new ElementPool<Vector2, Bullet>(pos => BulletFactory.CreateBullet(pos, false));
@@ -127,11 +127,11 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
-                    return 1;
-                case EnemyType.Ranger:
                     return 2;
-                case EnemyType.Tank:
+                case EnemyType.Ranger:
                     return 3;
+                case EnemyType.Tank:
+                    return 5;
                 default:
                     return 1;
             }
@@ -142,11 +142,11 @@ namespace Game
             switch (type)
             {
                 case EnemyType.Normal:
-                    return 0; // 12
+                    return 12; // 12
                 case EnemyType.Ranger:
-                    return 0; // 10
+                    return 10; // 10
                 case EnemyType.Tank:
-                    return 0; // 8
+                    return 8; // 8
                 default:
                     return 10;
 
